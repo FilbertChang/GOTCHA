@@ -1,0 +1,26 @@
+
+GOTCHA-ID Model Training Report
+================================
+Dataset       : gotcha_id_fraud_dataset.csv
+Total rows    : 1,000,000
+Fraud rate    : 1.50%
+Features      : 21
+
+Random Forest
+-------------
+ROC-AUC       : 1.0000
+Avg Precision : 1.0000
+TN=196991  FP=9
+FN=1  TP=2999
+
+Top 5 Features:
+  receiver_account_age_days: 0.2188
+  interbank_transfer: 0.1842
+  time_since_last_trx_minutes: 0.1413
+  trx_count_last_24h: 0.1179
+  trx_count_last_1h: 0.1004
+
+Isolation Forest
+----------------
+ROC-AUC       : 0.5515
+Contamination : 0.015

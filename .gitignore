@@ -1,0 +1,16 @@
+# Sensitif
+.env
+
+# Dataset — terlalu besar
+gotcha_id_fraud_dataset.csv
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Frontend generated
+frontend/node_modules/
+frontend/dist/
+frontend/package-lock.json
+frontend/src/assets/
+frontend/.env
