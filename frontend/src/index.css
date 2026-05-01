@@ -6,20 +6,24 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0e1a;
-  color: #e2e8f0;
   min-height: 100vh;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0e1a;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2d3748;
-  border-radius: 3px;
+  background: #c9c9cd;
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #3a4148;
+  }
 }

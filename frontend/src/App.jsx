@@ -12,22 +12,24 @@ import {
 const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 const DARK = {
-  bg: "#0B1A2F", surface: "#162A45", card: "#1A3050", border: "#1E3D5C",
-  accent: "#00C2FF", danger: "#FF3B3B", warn: "#F59E0B", safe: "#16A34A",
-  text: "#FFFFFF", muted: "#B0C0D0", inputBg: "#0B1A2F", shadow: "rgba(0,194,255,0.08)",
+  bg: "#191c1f", surface: "#2a2d30", card: "#191c1f", border: "#3a4148",
+  accent: "#494fdf", danger: "#e23b4a", warn: "#ec7e00", safe: "#00a87e",
+  text: "#ffffff", muted: "#8d969e", inputBg: "#191c1f", shadow: "transparent",
+  pillBg: "#ffffff", pillText: "#191c1f", pillHover: "rgba(255,255,255,0.85)"
 };
 const LIGHT = {
-  bg: "#F8FAFC", surface: "#FFFFFF", card: "#FFFFFF", border: "#E2E8F0",
-  accent: "#1E3A8A", danger: "#DC2626", warn: "#F59E0B", safe: "#16A34A",
-  text: "#0F172A", muted: "#64748B", inputBg: "#F1F5F9", shadow: "rgba(30,58,138,0.08)",
+  bg: "#ffffff", surface: "#f4f4f4", card: "#ffffff", border: "#c9c9cd",
+  accent: "#494fdf", danger: "#e23b4a", warn: "#ec7e00", safe: "#00a87e",
+  text: "#191c1f", muted: "#505a63", inputBg: "#ffffff", shadow: "transparent",
+  pillBg: "#191c1f", pillText: "#ffffff", pillHover: "rgba(25,28,31,0.85)"
 };
 
 const FRAUD_TYPES = [
-  { key: "social_engineering", label: "Social Engineering", desc: "Penipuan via WA/Telegram", color: "#FF3B3B" },
-  { key: "rekening_mule", label: "Rekening Mule", desc: "Rekening penampung ilegal", color: "#F59E0B" },
-  { key: "qris_fraud_substitusi", label: "QRIS Substitusi", desc: "QR code palsu ditempel", color: "#A855F7" },
-  { key: "qris_fraud_merchant_fiktif", label: "QRIS Merchant Fiktif", desc: "Merchant QRIS palsu", color: "#EC4899" },
-  { key: "pinjol_ilegal", label: "Pinjol Ilegal", desc: "Platform pinjaman ilegal", color: "#F97316" },
+  { key: "social_engineering", label: "Social Engineering", desc: "Penipuan via WA/Telegram", color: "#e23b4a" },
+  { key: "rekening_mule", label: "Rekening Mule", desc: "Rekening penampung ilegal", color: "#ec7e00" },
+  { key: "qris_fraud_substitusi", label: "QRIS Substitusi", desc: "QR code palsu ditempel", color: "#e61e49" },
+  { key: "qris_fraud_merchant_fiktif", label: "QRIS Merchant Fiktif", desc: "Merchant QRIS palsu", color: "#494fdf" },
+  { key: "pinjol_ilegal", label: "Pinjol Ilegal", desc: "Platform pinjaman ilegal", color: "#b09000" },
 ];
 
 const FRAUD_LABEL_MAP = Object.fromEntries(FRAUD_TYPES.map(f => [f.key, f.label]));
@@ -55,8 +57,8 @@ function RiskMeter({ score, T }) {
           style={{ transition: "stroke-dashoffset 0.8s ease, stroke 0.3s ease" }} />
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1 }}>{pct}%</span>
-        <span style={{ fontSize: 9, color: T.muted, letterSpacing: 2, marginTop: 2 }}>{label}</span>
+        <span style={{ fontFamily: '"Aeonik Pro", sans-serif', fontSize: 32, fontWeight: 500, color, lineHeight: 1, letterSpacing: "-0.32px" }}>{pct}%</span>
+        <span style={{ fontSize: 10, color: T.muted, letterSpacing: "0.24px", marginTop: 4, textTransform: "uppercase" }}>{label}</span>
       </div>
     </div>
   );
@@ -64,13 +66,13 @@ function RiskMeter({ score, T }) {
 
 function StatCard({ icon: Icon, label, value, color, sub, T }) {
   return (
-    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderTop: `3px solid ${color}`, borderRadius: 12, padding: "18px 20px", boxShadow: `0 4px 16px ${T.shadow}` }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <Icon size={14} color={color} />
-        <span style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500 }}>{label}</span>
+    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderTop: `3px solid ${color}`, borderRadius: 20, padding: "24px 32px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <Icon size={16} color={color} />
+        <span style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, textTransform: "uppercase" }}>{label}</span>
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: T.text, lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: T.muted, marginTop: 6 }}>{sub}</div>}
+      <div style={{ fontSize: 40, fontWeight: 500, color: T.text, lineHeight: 1.2, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.4px" }}>{value}</div>
+      {sub && <div style={{ fontSize: 13, color: T.muted, marginTop: 8, letterSpacing: "0.16px" }}>{sub}</div>}
     </div>
   );
 }
@@ -78,51 +80,49 @@ function StatCard({ icon: Icon, label, value, color, sub, T }) {
 function FraudTypePanel({ detectedKey, T }) {
   const hasResult = detectedKey !== undefined;
   return (
-    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "18px 20px", boxShadow: `0 4px 16px ${T.shadow}` }}>
-      <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 14 }}>
+    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: "24px 32px" }}>
+      <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 20, textTransform: "uppercase" }}>
         JENIS FRAUD TERDETEKSI
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {FRAUD_TYPES.map(ft => {
           const active = hasResult && detectedKey === ft.key;
           return (
             <div key={ft.key} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8,
+              display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12,
               background: active ? `${ft.color}15` : T.surface,
-              border: `1px solid ${active ? ft.color + "55" : T.border}`,
+              border: `1px solid ${active ? ft.color : "transparent"}`,
               transition: "all 0.3s ease",
-              boxShadow: active ? `0 0 14px ${ft.color}20` : "none",
             }}>
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: active ? ft.color : T.border, boxShadow: active ? `0 0 7px ${ft.color}` : "none", flexShrink: 0, transition: "all 0.3s" }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: active ? ft.color : T.border, flexShrink: 0, transition: "all 0.3s" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: active ? ft.color : T.muted, transition: "color 0.3s" }}>{ft.label}</div>
-                <div style={{ fontSize: 10, color: T.muted, marginTop: 1 }}>{ft.desc}</div>
+                <div style={{ fontSize: 14, fontWeight: active ? 600 : 400, color: active ? ft.color : T.muted, letterSpacing: "0.16px" }}>{ft.label}</div>
+                <div style={{ fontSize: 12, color: T.muted, marginTop: 2, letterSpacing: "0.16px" }}>{ft.desc}</div>
               </div>
               {active && (
-                <div style={{ fontSize: 9, padding: "2px 7px", borderRadius: 20, background: `${ft.color}20`, color: ft.color, border: `1px solid ${ft.color}44`, fontWeight: 600, letterSpacing: 1, flexShrink: 0 }}>
+                <div style={{ fontSize: 10, padding: "4px 10px", borderRadius: 9999, background: ft.color, color: "#fff", fontWeight: 600, letterSpacing: "0.24px", flexShrink: 0 }}>
                   AKTIF
                 </div>
               )}
             </div>
           );
         })}
-        {/* Normal row */}
         {(() => {
           const active = hasResult && detectedKey === null;
           return (
             <div style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8,
+              display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 12,
               background: active ? `${T.safe}15` : T.surface,
-              border: `1px solid ${active ? T.safe + "55" : T.border}`,
+              border: `1px solid ${active ? T.safe : "transparent"}`,
               transition: "all 0.3s ease",
             }}>
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: active ? T.safe : T.border, flexShrink: 0, transition: "all 0.3s" }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: active ? T.safe : T.border, flexShrink: 0, transition: "all 0.3s" }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: active ? T.safe : T.muted, transition: "color 0.3s" }}>Transaksi Normal</div>
-                <div style={{ fontSize: 10, color: T.muted, marginTop: 1 }}>Tidak ada indikasi fraud</div>
+                <div style={{ fontSize: 14, fontWeight: active ? 600 : 400, color: active ? T.safe : T.muted, letterSpacing: "0.16px" }}>Transaksi Normal</div>
+                <div style={{ fontSize: 12, color: T.muted, marginTop: 2, letterSpacing: "0.16px" }}>Tidak ada indikasi fraud</div>
               </div>
               {active && (
-                <div style={{ fontSize: 9, padding: "2px 7px", borderRadius: 20, background: `${T.safe}20`, color: T.safe, border: `1px solid ${T.safe}44`, fontWeight: 600, letterSpacing: 1, flexShrink: 0 }}>
+                <div style={{ fontSize: 10, padding: "4px 10px", borderRadius: 9999, background: T.safe, color: "#fff", fontWeight: 600, letterSpacing: "0.24px", flexShrink: 0 }}>
                   AKTIF
                 </div>
               )}
@@ -135,7 +135,7 @@ function FraudTypePanel({ detectedKey, T }) {
 }
 
 export default function App() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
   const T = dark ? DARK : LIGHT;
   const [result, setResult] = useState(null);
   const [detectedKey, setDetectedKey] = useState(undefined);
@@ -186,94 +186,95 @@ export default function App() {
 
   const navBtn = (tab) => (
     <button key={tab} onClick={() => setActiveTab(tab)} style={{
-      background: activeTab === tab ? `${T.accent}18` : "none",
-      border: `1px solid ${activeTab === tab ? T.accent + "55" : "transparent"}`,
-      borderRadius: 8, cursor: "pointer",
-      color: activeTab === tab ? T.accent : T.muted,
-      fontSize: 11, letterSpacing: 1, textTransform: "uppercase",
-      padding: "6px 14px", fontWeight: activeTab === tab ? 600 : 400,
+      background: activeTab === tab ? T.pillBg : "transparent",
+      border: `2px solid ${activeTab === tab ? "transparent" : T.border}`,
+      borderRadius: 9999, cursor: "pointer",
+      color: activeTab === tab ? T.pillText : T.text,
+      fontSize: 16, letterSpacing: "0.24px",
+      padding: "10px 24px", fontWeight: 500, fontFamily: "Inter, sans-serif",
       transition: "all 0.2s",
-    }}>{tab}</button>
+    }}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</button>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: "'Inter', -apple-system, sans-serif", transition: "background 0.3s, color 0.3s" }}>
+    <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: "'Inter', -apple-system, sans-serif", transition: "background 0.3s, color 0.3s", letterSpacing: "0.16px" }}>
 
       {/* Header */}
-      <header style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, position: "sticky", top: 0, zIndex: 100, boxShadow: `0 2px 12px ${T.shadow}` }}>
+      <header style={{ background: T.bg, borderBottom: `1px solid ${T.border}`, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80, position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${T.accent}, ${dark ? "#0088cc" : "#1E3A8A"})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 12px ${T.accent}44` }}>
-            <Shield size={18} color="#fff" />
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Shield size={20} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: T.accent, letterSpacing: 2 }}>G.O.T.C.H.A</div>
-            <div style={{ fontSize: 9, color: T.muted, letterSpacing: 0.5 }}>Guard & Observe Transactions with Cognitive Hybrid AI</div>
+            <div style={{ fontSize: 24, fontWeight: 500, color: T.text, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.32px", lineHeight: 1.2 }}>G.O.T.C.H.A</div>
+            <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.16px" }}>Guard & Observe Transactions</div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {["dashboard", "simulate", "history"].map(navBtn)}
-          <button onClick={() => setDark(d => !d)} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, cursor: "pointer", padding: "6px 10px", display: "flex", alignItems: "center", gap: 6, color: T.muted, fontSize: 11, marginLeft: 8 }}>
-            {dark ? <Sun size={13} /> : <Moon size={13} />} {dark ? "Light" : "Dark"}
+          <div style={{ width: 1, height: 24, background: T.border, margin: "0 8px" }} />
+          <button onClick={() => setDark(d => !d)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9999, cursor: "pointer", padding: "10px 20px", display: "flex", alignItems: "center", gap: 8, color: T.text, fontSize: 14, fontWeight: 500 }}>
+            {dark ? <Sun size={16} /> : <Moon size={16} />} {dark ? "Light" : "Dark"}
           </button>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, background: T.card, border: `1px solid ${T.border}` }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: backendOk === null ? T.warn : backendOk ? T.safe : T.danger, boxShadow: backendOk ? `0 0 6px ${T.safe}` : "none" }} />
-            <span style={{ fontSize: 11, color: T.muted }}>{backendOk === null ? "Connecting..." : backendOk ? "API Online" : "API Offline"}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 9999, background: T.surface, border: `1px solid ${T.border}` }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: backendOk === null ? T.warn : backendOk ? T.safe : T.danger }} />
+            <span style={{ fontSize: 14, color: T.text, fontWeight: 500 }}>{backendOk === null ? "Connecting" : backendOk ? "Online" : "Offline"}</span>
           </div>
         </div>
       </header>
 
-      <main style={{ padding: "28px 32px", maxWidth: 1400, margin: "0 auto" }}>
+      <main style={{ padding: "48px 32px", maxWidth: 1400, margin: "0 auto" }}>
         {globalError && (
-          <div style={{ background: `${T.danger}15`, border: `1px solid ${T.danger}44`, borderRadius: 8, padding: "10px 16px", marginBottom: 16, fontSize: 12, color: T.danger, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ background: `${T.danger}15`, border: `1px solid ${T.danger}`, borderRadius: 12, padding: "16px 20px", marginBottom: 24, fontSize: 14, color: T.danger, display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: 500 }}>
             <span>⚠ {globalError}</span>
-            <button onClick={() => setGlobalError("")} style={{ background: "none", border: "none", color: T.danger, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
+            <button onClick={() => setGlobalError("")} style={{ background: "none", border: "none", color: T.danger, cursor: "pointer", fontSize: 24, lineHeight: 1 }}>×</button>
           </div>
         )}
 
         {/* DASHBOARD */}
         {activeTab === "dashboard" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-              <StatCard icon={Activity} label="TOTAL TRANSAKSI" value={history.length} color={T.accent} sub="sesi ini" T={T} />
-              <StatCard icon={AlertTriangle} label="FRAUD TERDETEKSI" value={totalFraud} color={T.danger} sub={`${history.length ? Math.round(totalFraud / history.length * 100) : 0}% dari total`} T={T} />
-              <StatCard icon={CheckCircle} label="TRANSAKSI AMAN" value={totalNormal} color={T.safe} sub="lolos verifikasi" T={T} />
-              <StatCard icon={TrendingUp} label="AVG RISK SCORE" value={`${avgRisk}%`} color={T.warn} sub="rata-rata sesi ini" T={T} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24 }}>
+              <StatCard icon={Activity} label="Total Transaksi" value={history.length} color={T.accent} sub="Sesi ini" T={T} />
+              <StatCard icon={AlertTriangle} label="Fraud Terdeteksi" value={totalFraud} color={T.danger} sub={`${history.length ? Math.round(totalFraud / history.length * 100) : 0}% dari total`} T={T} />
+              <StatCard icon={CheckCircle} label="Transaksi Aman" value={totalNormal} color={T.safe} sub="Lolos verifikasi" T={T} />
+              <StatCard icon={TrendingUp} label="Avg Risk Score" value={`${avgRisk}%`} color={T.warn} sub="Rata-rata sesi ini" T={T} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
-              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 20, boxShadow: `0 4px 16px ${T.shadow}` }}>
-                <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 16 }}>RISK SCORE TREND — 20 TRANSAKSI TERAKHIR</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24 }}>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+                <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 24, textTransform: "uppercase" }}>Risk Score Trend — 20 Transaksi Terakhir</div>
                 {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={200}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <AreaChart data={chartData}>
-                      <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={T.accent} stopOpacity={0.25} /><stop offset="95%" stopColor={T.accent} stopOpacity={0} /></linearGradient></defs>
-                      <XAxis dataKey="name" stroke={T.muted} tick={{ fontSize: 10, fill: T.muted }} />
-                      <YAxis domain={[0, 100]} stroke={T.muted} tick={{ fontSize: 10, fill: T.muted }} />
-                      <Tooltip contentStyle={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, fontSize: 12, color: T.text }} formatter={v => [`${v}%`, "Risk"]} />
-                      <Area type="monotone" dataKey="risk" stroke={T.accent} fill="url(#rg)" strokeWidth={2} dot={{ fill: T.accent, r: 3 }} />
+                      <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={T.accent} stopOpacity={0.15} /><stop offset="95%" stopColor={T.accent} stopOpacity={0} /></linearGradient></defs>
+                      <XAxis dataKey="name" stroke={T.muted} tick={{ fontSize: 12, fill: T.muted }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 100]} stroke={T.muted} tick={{ fontSize: 12, fill: T.muted }} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, fontSize: 14, color: T.text, padding: "12px 16px" }} formatter={v => [`${v}%`, "Risk"]} />
+                      <Area type="monotone" dataKey="risk" stroke={T.accent} fill="url(#rg)" strokeWidth={3} dot={{ fill: T.bg, stroke: T.accent, strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div style={{ height: 200, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, color: T.muted }}>
-                    <Eye size={32} color={T.border} />
-                    <span style={{ fontSize: 13 }}>Belum ada data — jalankan simulasi dulu</span>
+                  <div style={{ height: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: T.muted }}>
+                    <Eye size={40} color={T.border} />
+                    <span style={{ fontSize: 16 }}>Belum ada data — jalankan simulasi dulu</span>
                   </div>
                 )}
               </div>
-              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 20, boxShadow: `0 4px 16px ${T.shadow}` }}>
-                <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 12 }}>DISTRIBUSI HASIL</div>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+                <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 24, textTransform: "uppercase" }}>Distribusi Hasil</div>
                 {history.length === 0 ? (
-                  <div style={{ height: 140, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, color: T.muted }}>
-                    <Eye size={24} color={T.border} />
-                    <span style={{ fontSize: 12 }}>Belum ada data</span>
+                  <div style={{ height: 200, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: T.muted }}>
+                    <Eye size={32} color={T.border} />
+                    <span style={{ fontSize: 14 }}>Belum ada data</span>
                   </div>
                 ) : (
                   <>
-                    <ResponsiveContainer width="100%" height={140}>
-                      <PieChart><Pie data={pieData} cx="50%" cy="50%" innerRadius={38} outerRadius={60} dataKey="value" strokeWidth={0}><Cell fill={T.danger} /><Cell fill={T.safe} /></Pie><Tooltip contentStyle={{ background: T.surface, border: `1px solid ${T.border}`, fontSize: 12, color: T.text }} /></PieChart>
+                    <ResponsiveContainer width="100%" height={180}>
+                      <PieChart><Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" stroke={T.card} strokeWidth={2}><Cell fill={T.danger} /><Cell fill={T.safe} /></Pie><Tooltip contentStyle={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, fontSize: 14, color: T.text }} /></PieChart>
                     </ResponsiveContainer>
-                    <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 16 }}>
                       {[["Fraud", T.danger], ["Normal", T.safe]].map(([l, c]) => (
-                        <div key={l} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: T.muted }}><div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />{l}</div>
+                        <div key={l} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: T.text, fontWeight: 500 }}><div style={{ width: 12, height: 12, borderRadius: 4, background: c }} />{l}</div>
                       ))}
                     </div>
                   </>
@@ -281,20 +282,20 @@ export default function App() {
               </div>
             </div>
             {history.length > 0 && (
-              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 20, boxShadow: `0 4px 16px ${T.shadow}` }}>
-                <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 14 }}>RIWAYAT TERKINI</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+                <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 24, textTransform: "uppercase" }}>Riwayat Terkini</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {[...history].reverse().slice(0, 5).map((h, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 8, background: T.surface, border: `1px solid ${T.border}` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: h.is_fraud ? T.danger : T.safe }} />
-                        <span style={{ fontSize: 12, color: T.text }}>{h.transaction_id}</span>
-                        {h.fraud_type_predicted && <span style={{ fontSize: 11, color: T.muted }}>— {FRAUD_LABEL_MAP[h.fraud_type_predicted] || h.fraud_type_predicted}</span>}
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: 12, background: T.surface, border: `1px solid ${T.border}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: h.is_fraud ? T.danger : T.safe }} />
+                        <span style={{ fontSize: 16, fontWeight: 500, color: T.text }}>{h.transaction_id}</span>
+                        {h.fraud_type_predicted && <span style={{ fontSize: 14, color: T.muted }}>— {FRAUD_LABEL_MAP[h.fraud_type_predicted] || h.fraud_type_predicted}</span>}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ fontSize: 11, color: T.muted }}>{h.timestamp}</span>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: h.is_fraud ? T.danger : T.safe }}>{Math.round(h.risk_score * 100)}%</span>
-                        <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 20, fontWeight: 500, background: h.recommended_action === "BLOCK" ? `${T.danger}18` : h.recommended_action === "REVIEW" ? `${T.warn}18` : `${T.safe}18`, color: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, border: `1px solid ${h.recommended_action === "BLOCK" ? T.danger + "44" : h.recommended_action === "REVIEW" ? T.warn + "44" : T.safe + "44"}` }}>{h.recommended_action}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                        <span style={{ fontSize: 14, color: T.muted }}>{h.timestamp}</span>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: h.is_fraud ? T.danger : T.safe, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.16px" }}>{Math.round(h.risk_score * 100)}%</span>
+                        <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, fontWeight: 600, letterSpacing: "0.24px", background: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.recommended_action}</span>
                       </div>
                     </div>
                   ))}
@@ -306,78 +307,79 @@ export default function App() {
 
         {/* SIMULATE */}
         {activeTab === "simulate" && (
-          <div style={{ display: "grid", gridTemplateColumns: "380px 1fr", gap: 24 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "420px 1fr", gap: 32 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               <FraudTypePanel detectedKey={detectedKey} T={T} />
-              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "16px 20px", boxShadow: `0 4px 16px ${T.shadow}` }}>
-                <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 12 }}>QUICK TEST</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+                <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 20, textTransform: "uppercase" }}>Quick Test</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                   {SCENARIOS.map(s => (
-                    <button key={s.label} onClick={() => runPredict(s.data)} disabled={loading} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "7px 12px", cursor: loading ? "not-allowed" : "pointer", fontSize: 11, color: T.muted, transition: "all 0.2s", opacity: loading ? 0.5 : 1 }}
-                      onMouseEnter={e => { if (!loading) { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; } }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}>
+                    <button key={s.label} onClick={() => runPredict(s.data)} disabled={loading} style={{ background: "transparent", border: `2px solid ${T.border}`, borderRadius: 9999, padding: "10px 20px", cursor: loading ? "not-allowed" : "pointer", fontSize: 14, fontWeight: 500, color: T.text, transition: "all 0.2s", opacity: loading ? 0.5 : 1 }}
+                      onMouseEnter={e => { if (!loading) { e.currentTarget.style.borderColor = T.text; } }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; }}>
                       {s.label}
                     </button>
                   ))}
                 </div>
               </div>
-              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "16px 20px", boxShadow: `0 4px 16px ${T.shadow}` }}>
-                <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 12 }}>CUSTOM INPUT (JSON)</div>
+              <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+                <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 20, textTransform: "uppercase" }}>Custom Input (JSON)</div>
                 <textarea value={customInput} onChange={e => setCustomInput(e.target.value)} placeholder='{"transaction_id": "TXN-001", ...}'
-                  style={{ width: "100%", height: 160, background: T.inputBg, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 11, padding: 12, resize: "none", fontFamily: "monospace", outline: "none" }}
-                  onFocus={e => e.target.style.borderColor = T.accent}
+                  style={{ width: "100%", height: 200, background: T.inputBg, border: `1px solid ${T.border}`, borderRadius: 12, color: T.text, fontSize: 14, padding: 16, resize: "none", fontFamily: "monospace", outline: "none", lineHeight: 1.5 }}
+                  onFocus={e => e.target.style.borderColor = T.text}
                   onBlur={e => e.target.style.borderColor = T.border} />
-                {customError && <div style={{ fontSize: 11, color: T.danger, marginTop: 6 }}>{customError}</div>}
-                <button onClick={handleCustomSubmit} disabled={loading || !customInput.trim()} style={{ marginTop: 10, width: "100%", padding: "11px", background: loading || !customInput.trim() ? T.border : T.accent, border: "none", borderRadius: 8, cursor: loading || !customInput.trim() ? "not-allowed" : "pointer", color: dark ? "#0B1A2F" : "#fff", fontSize: 12, fontWeight: 700, letterSpacing: 1, transition: "all 0.2s", boxShadow: !loading && customInput.trim() ? `0 0 16px ${T.accent}44` : "none" }}>
+                {customError && <div style={{ fontSize: 14, color: T.danger, marginTop: 12 }}>{customError}</div>}
+                <button onClick={handleCustomSubmit} disabled={loading || !customInput.trim()} style={{ marginTop: 24, width: "100%", padding: "14px 32px", background: loading || !customInput.trim() ? T.border : T.pillBg, border: "none", borderRadius: 9999, cursor: loading || !customInput.trim() ? "not-allowed" : "pointer", color: T.pillText, fontSize: 16, fontWeight: 600, letterSpacing: "0.24px", transition: "all 0.2s" }}
+                  onMouseEnter={e => { if (!loading && customInput.trim()) e.currentTarget.style.background = T.pillHover; }}
+                  onMouseLeave={e => { if (!loading && customInput.trim()) e.currentTarget.style.background = T.pillBg; }}>
                   {loading ? "MENGANALISIS..." : "ANALISIS TRANSAKSI"}
                 </button>
               </div>
             </div>
 
-            <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 28, boxShadow: `0 4px 16px ${T.shadow}`, minHeight: 500 }}>
+            <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 48, minHeight: 600 }}>
               {!result && !loading && (
-                <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: T.muted }}>
-                  <Zap size={44} color={T.border} />
-                  <span style={{ fontSize: 14 }}>Pilih quick test atau masukkan JSON</span>
+                <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: T.muted }}>
+                  <Zap size={64} color={T.border} />
+                  <span style={{ fontSize: 18, fontWeight: 500 }}>Pilih quick test atau masukkan JSON</span>
                 </div>
               )}
               {loading && (
-                <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-                  <div style={{ width: 44, height: 44, border: `3px solid ${T.border}`, borderTop: `3px solid ${T.accent}`, borderRadius: "50%", animation: "spin 0.8s linear infinite", boxShadow: `0 0 12px ${T.accent}44` }} />
-                  <span style={{ fontSize: 11, color: T.muted, letterSpacing: 2 }}>MENGANALISIS TRANSAKSI...</span>
+                <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
+                  <div style={{ width: 64, height: 64, border: `4px solid ${T.border}`, borderTop: `4px solid ${T.text}`, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  <span style={{ fontSize: 14, color: T.muted, letterSpacing: "0.24px", fontWeight: 500 }}>MENGANALISIS TRANSAKSI...</span>
                 </div>
               )}
               {result && !loading && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
                     <RiskMeter score={result.risk_score} T={T} />
                     <div>
-                      <div style={{ fontSize: 32, fontWeight: 800, color: actionColor, letterSpacing: 2, lineHeight: 1 }}>{result.recommended_action}</div>
-                      <div style={{ fontSize: 12, color: T.muted, marginTop: 4, marginBottom: 12 }}>{result.transaction_id}</div>
+                      <div style={{ fontSize: 48, fontWeight: 500, color: actionColor, letterSpacing: "-0.48px", lineHeight: 1, fontFamily: '"Aeonik Pro", sans-serif' }}>{result.recommended_action}</div>
+                      <div style={{ fontSize: 16, color: T.muted, marginTop: 8, marginBottom: 16, fontWeight: 500 }}>{result.transaction_id}</div>
                       {result.fraud_type_predicted && (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, padding: "5px 12px", borderRadius: 20, background: `${T.danger}15`, border: `1px solid ${T.danger}44`, color: T.danger, fontWeight: 500 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.danger, boxShadow: `0 0 5px ${T.danger}` }} />
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, padding: "8px 16px", borderRadius: 9999, background: T.danger, color: "#fff", fontWeight: 600, letterSpacing: "0.16px" }}>
                           {FRAUD_LABEL_MAP[result.fraud_type_predicted] || result.fraud_type_predicted}
                         </div>
                       )}
                       {!result.is_fraud && (
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, padding: "5px 12px", borderRadius: 20, background: `${T.safe}15`, border: `1px solid ${T.safe}44`, color: T.safe, fontWeight: 500 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.safe }} /> Transaksi Normal
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, padding: "8px 16px", borderRadius: 9999, background: T.safe, color: "#fff", fontWeight: 600, letterSpacing: "0.16px" }}>
+                          Transaksi Normal
                         </div>
                       )}
                     </div>
                   </div>
                   <div style={{ height: 1, background: T.border }} />
-                  <div style={{ background: T.surface, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, borderLeft: `3px solid ${T.accent}` }}>
-                    <div style={{ fontSize: 10, color: T.accent, letterSpacing: 2, fontWeight: 600, marginBottom: 10 }}>AI EXPLANATION — GPT-4o</div>
-                    <div style={{ fontSize: 13, color: T.text, lineHeight: 1.75 }}>{result.explanation}</div>
+                  <div style={{ background: T.surface, borderRadius: 16, padding: 24, border: `1px solid ${T.border}` }}>
+                    <div style={{ fontSize: 12, color: T.text, letterSpacing: "0.24px", fontWeight: 600, marginBottom: 12, textTransform: "uppercase" }}>AI Explanation — GPT-4o</div>
+                    <div style={{ fontSize: 16, color: T.text, lineHeight: 1.6, fontWeight: 400 }}>{result.explanation}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: T.muted, letterSpacing: 2, fontWeight: 500, marginBottom: 10 }}>SINYAL TERDETEKSI</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 16, textTransform: "uppercase" }}>Sinyal Terdeteksi</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                       {Object.entries(result.signals).map(([k, v]) => (
-                        <div key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 20, fontSize: 11, background: v ? `${T.danger}15` : `${T.muted}10`, border: `1px solid ${v ? T.danger + "44" : T.border}`, color: v ? T.danger : T.muted, fontWeight: v ? 500 : 400 }}>
-                          <div style={{ width: 5, height: 5, borderRadius: "50%", background: v ? T.danger : T.muted, boxShadow: v ? `0 0 4px ${T.danger}` : "none" }} />
+                        <div key={k} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 9999, fontSize: 14, background: v ? `${T.danger}15` : T.surface, border: `1px solid ${v ? T.danger : T.border}`, color: v ? T.danger : T.muted, fontWeight: v ? 600 : 500 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: v ? T.danger : T.border }} />
                           {k.replace(/_/g, " ")}
                         </div>
                       ))}
@@ -391,25 +393,25 @@ export default function App() {
 
         {/* HISTORY */}
         {activeTab === "history" && (
-          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24, boxShadow: `0 4px 16px ${T.shadow}` }}>
-            <div style={{ fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500, marginBottom: 16 }}>RIWAYAT LENGKAP — {history.length} TRANSAKSI</div>
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: 32 }}>
+            <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 24, textTransform: "uppercase" }}>Riwayat Lengkap — {history.length} Transaksi</div>
             {history.length === 0 ? (
-              <div style={{ textAlign: "center", color: T.muted, padding: 48, fontSize: 13 }}>Belum ada riwayat transaksi</div>
+              <div style={{ textAlign: "center", color: T.muted, padding: 64, fontSize: 16 }}>Belum ada riwayat transaksi</div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr 80px 100px", padding: "6px 14px", gap: 12, fontSize: 10, color: T.muted, letterSpacing: 1, fontWeight: 500 }}>
-                  <span>TRANSACTION ID</span><span>WAKTU</span><span>JENIS</span><span>RISK</span><span>ACTION</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr 100px 120px", padding: "8px 20px", gap: 16, fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 600, textTransform: "uppercase" }}>
+                  <span>Transaction ID</span><span>Waktu</span><span>Jenis</span><span>Risk</span><span>Action</span>
                 </div>
                 {[...history].reverse().map((h, i) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr 80px 100px", alignItems: "center", padding: "11px 14px", borderRadius: 8, background: T.surface, border: `1px solid ${T.border}`, gap: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: h.is_fraud ? T.danger : T.safe, flexShrink: 0 }} />
-                      <span style={{ fontSize: 12, color: T.text }}>{h.transaction_id}</span>
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr 100px 120px", alignItems: "center", padding: "16px 20px", borderRadius: 12, background: T.surface, border: `1px solid ${T.border}`, gap: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: h.is_fraud ? T.danger : T.safe, flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, color: T.text, fontWeight: 500 }}>{h.transaction_id}</span>
                     </div>
-                    <span style={{ fontSize: 12, color: T.muted }}>{h.timestamp}</span>
-                    <span style={{ fontSize: 12, color: h.is_fraud ? T.danger : T.safe }}>{h.fraud_type_predicted ? (FRAUD_LABEL_MAP[h.fraud_type_predicted] || h.fraud_type_predicted) : "Normal"}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: h.is_fraud ? T.danger : T.safe }}>{Math.round(h.risk_score * 100)}%</span>
-                    <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, textAlign: "center", fontWeight: 500, background: h.recommended_action === "BLOCK" ? `${T.danger}15` : h.recommended_action === "REVIEW" ? `${T.warn}15` : `${T.safe}15`, color: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, border: `1px solid ${h.recommended_action === "BLOCK" ? T.danger + "44" : h.recommended_action === "REVIEW" ? T.warn + "44" : T.safe + "44"}` }}>{h.recommended_action}</span>
+                    <span style={{ fontSize: 14, color: T.muted }}>{h.timestamp}</span>
+                    <span style={{ fontSize: 14, color: h.is_fraud ? T.danger : T.safe, fontWeight: 500 }}>{h.fraud_type_predicted ? (FRAUD_LABEL_MAP[h.fraud_type_predicted] || h.fraud_type_predicted) : "Normal"}</span>
+                    <span style={{ fontSize: 16, fontWeight: 500, color: h.is_fraud ? T.danger : T.safe, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.16px" }}>{Math.round(h.risk_score * 100)}%</span>
+                    <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, textAlign: "center", fontWeight: 600, letterSpacing: "0.24px", background: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.recommended_action}</span>
                   </div>
                 ))}
               </div>
@@ -419,9 +421,17 @@ export default function App() {
       </main>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @keyframes spin { to { transform: rotate(360deg); } }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Fallback for Aeonik Pro if not installed locally */
+        @font-face {
+          font-family: 'Aeonik Pro';
+          src: local('Aeonik Pro'), local('AeonikPro-Medium');
+          font-weight: 500;
+          font-style: normal;
+        }
       `}</style>
     </div>
   );
