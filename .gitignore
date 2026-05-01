@@ -1,6 +1,11 @@
 # Sensitif
 .env
 
+# AI Context Files
+AGENTS.md
+DESIGN.md
+**/DESIGN.md
+
 # Dataset — terlalu besar
 gotcha_id_fraud_dataset.csv
 

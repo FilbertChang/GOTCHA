@@ -86,6 +86,7 @@ Dataset dibuat sendiri menggunakan `generate_dataset.py` dan tidak mengandung da
 - Recharts (visualisasi)
 - Lucide React (ikon)
 - Axios (HTTP client)
+- Premium Fintech UI (Revolut-inspired Design System)
 
 **Azure Services:**
 - Azure OpenAI (GPT-4o)
