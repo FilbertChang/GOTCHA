@@ -46,7 +46,7 @@ app.add_middleware(
 # LOAD MODEL
 # ─────────────────────────────────────────────
 
-print("⏳ Loading models...")
+print("Loading models...")
 
 rf_model = joblib.load("models/random_forest.pkl")
 iso_model = joblib.load("models/isolation_forest.pkl")
@@ -66,7 +66,7 @@ with open("models/optimal_threshold.pkl", "rb") as f:
 
 iso_feature_idx = [FEATURE_COLS.index(c) for c in ISO_FEATURE_COLS]
 
-print("✅ Models loaded.")
+print("Models loaded.")
 
 # ─────────────────────────────────────────────
 # SETUP GITHUB MODELS CLIENT
