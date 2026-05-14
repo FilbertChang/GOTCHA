@@ -10,18 +10,18 @@ Features      : 25
 
 Random Forest (Calibrated, SMOTE)
 ---------------------------------
-ROC-AUC              : 0.9989
-Avg Precision        : 0.9500
-Mean Calibration Err : 0.0157
-Optimal Threshold    : 0.1223 (cost ratio FN:FP = 10:1)
+ROC-AUC              : 0.9987
+Avg Precision        : 0.9483
+Mean Calibration Err : 0.0167
+Optimal Threshold    : 0.1322 (cost ratio FN:FP = 10:1)
 
 Default threshold (0.5):
-  TN=196691  FP=309
-  FN=369  TP=2631
+  TN=196693  FP=307
+  FN=370  TP=2630
 
-Optimized threshold (0.1223):
-  TN=196019  FP=981
-  FN=121  TP=2879
+Optimized threshold (0.1322):
+  TN=196042  FP=958
+  FN=128  TP=2872
 
 Top 5 Features:
   amount_trend_3trx: 0.1801

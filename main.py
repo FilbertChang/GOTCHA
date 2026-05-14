@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 import pickle
+import joblib
 import numpy as np
 import json
 import os
@@ -32,7 +33,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,https://gotcha-indol.vercel.app").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,20 +48,15 @@ app.add_middleware(
 
 print("⏳ Loading models...")
 
-with open("models/random_forest.pkl", "rb") as f:
-    rf_model = pickle.load(f)
-
-with open("models/isolation_forest.pkl", "rb") as f:
-    iso_model = pickle.load(f)
+rf_model = joblib.load("models/random_forest.pkl")
+iso_model = joblib.load("models/isolation_forest.pkl")
+ft_model = joblib.load("models/fraud_type_classifier.pkl")
 
 with open("models/encoders.pkl", "rb") as f:
     encoders = pickle.load(f)
 
 with open("models/feature_columns.pkl", "rb") as f:
     FEATURE_COLS = pickle.load(f)
-
-with open("models/fraud_type_classifier.pkl", "rb") as f:
-    ft_model = pickle.load(f)
 
 with open("models/iso_feature_cols.pkl", "rb") as f:
     ISO_FEATURE_COLS = pickle.load(f)

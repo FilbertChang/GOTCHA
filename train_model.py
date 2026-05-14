@@ -23,6 +23,7 @@ Output:
 import pandas as pd
 import numpy as np
 import pickle
+import joblib
 import os
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.model_selection import train_test_split
@@ -180,7 +181,7 @@ base_rf.fit(X_train_sm, y_train_sm)
 print("  ✅ Base Random Forest selesai.")
 
 print("\n⏳ Calibrating probabilities (isotonic regression)...")
-rf_model = CalibratedClassifierCV(base_rf, method="isotonic", cv=5)
+rf_model = CalibratedClassifierCV(base_rf, method="isotonic", cv=3)
 rf_model.fit(X_train, y_train)
 print("  ✅ Calibrated model selesai.")
 
@@ -363,17 +364,9 @@ print("\n⏳ Menyimpan model...")
 
 os.makedirs("models", exist_ok=True)
 
-# Simpan Random Forest
-with open("models/random_forest.pkl", "wb") as f:
-    pickle.dump(rf_model, f)
-
-# Simpan Isolation Forest
-with open("models/isolation_forest.pkl", "wb") as f:
-    pickle.dump(iso_model, f)
-
-# Simpan Fraud Type Classifier
-with open("models/fraud_type_classifier.pkl", "wb") as f:
-    pickle.dump(ft_model, f)
+joblib.dump(rf_model, "models/random_forest.pkl", compress=3)
+joblib.dump(iso_model, "models/isolation_forest.pkl", compress=3)
+joblib.dump(ft_model, "models/fraud_type_classifier.pkl", compress=3)
 
 # Simpan encoder dan feature columns
 # Ini penting agar backend bisa encode input yang sama caranya
