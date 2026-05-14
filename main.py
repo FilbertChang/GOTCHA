@@ -76,12 +76,19 @@ print("✅ Models loaded.")
 # SETUP GITHUB MODELS CLIENT
 # ─────────────────────────────────────────────
 
-github_client = OpenAI(
-    api_key=os.getenv("GITHUB_TOKEN"),
-    base_url=os.getenv("GITHUB_ENDPOINT"),
-)
-
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_ENDPOINT = os.getenv("GITHUB_ENDPOINT", "https://models.inference.ai.azure.com")
 GITHUB_MODEL = os.getenv("GITHUB_MODEL", "gpt-4o")
+
+try:
+    github_client = OpenAI(
+        api_key=GITHUB_TOKEN or "placeholder",
+        base_url=GITHUB_ENDPOINT,
+    )
+    _LLM_AVAILABLE = bool(GITHUB_TOKEN)
+except Exception:
+    github_client = None
+    _LLM_AVAILABLE = False
 
 # ─────────────────────────────────────────────
 # PREDICTION MONITOR
@@ -295,6 +302,8 @@ Berikan analisis dalam format JSON berikut:
 }}"""
 
     try:
+        if not _LLM_AVAILABLE or github_client is None:
+            raise RuntimeError("LLM not configured")
         response = github_client.chat.completions.create(
             model=GITHUB_MODEL,
             messages=[
