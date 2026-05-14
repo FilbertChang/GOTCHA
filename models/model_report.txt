@@ -4,23 +4,49 @@ GOTCHA-ID Model Training Report
 Dataset       : gotcha_id_fraud_dataset.csv
 Total rows    : 1,000,000
 Fraud rate    : 1.50%
-Features      : 21
+Features      : 25
+  incl. graph : receiver_unique_senders_1h, sender_unique_receivers_1h
+  incl. seq   : amount_trend_3trx, avg_time_between_trx_1h
 
-Random Forest
--------------
-ROC-AUC       : 1.0000
-Avg Precision : 1.0000
-TN=196991  FP=9
-FN=1  TP=2999
+Random Forest (Calibrated, SMOTE)
+---------------------------------
+ROC-AUC              : 0.9989
+Avg Precision        : 0.9500
+Mean Calibration Err : 0.0157
+Optimal Threshold    : 0.1223 (cost ratio FN:FP = 10:1)
+
+Default threshold (0.5):
+  TN=196691  FP=309
+  FN=369  TP=2631
+
+Optimized threshold (0.1223):
+  TN=196019  FP=981
+  FN=121  TP=2879
 
 Top 5 Features:
-  receiver_account_age_days: 0.2188
-  interbank_transfer: 0.1842
-  time_since_last_trx_minutes: 0.1413
-  trx_count_last_24h: 0.1179
-  trx_count_last_1h: 0.1004
+  amount_trend_3trx: 0.1801
+  interbank_transfer: 0.1399
+  receiver_id_match_blacklist: 0.1366
+  receiver_account_age_days: 0.0948
+  trx_count_last_1h: 0.0852
 
 Isolation Forest
 ----------------
-ROC-AUC       : 0.5515
+ROC-AUC       : 0.7100
 Contamination : 0.015
+
+Fraud Type Classifier
+---------------------
+Classes: ['pinjol_ilegal', 'qris_fraud_merchant_fiktif', 'qris_fraud_substitusi', 'rekening_mule', 'social_engineering']
+                            precision    recall  f1-score   support
+
+             pinjol_ilegal       1.00      1.00      1.00       461
+qris_fraud_merchant_fiktif       1.00      1.00      1.00       239
+     qris_fraud_substitusi       1.00      1.00      1.00       364
+             rekening_mule       1.00      0.99      0.99       748
+        social_engineering       0.99      1.00      1.00      1188
+
+                  accuracy                           1.00      3000
+                 macro avg       1.00      1.00      1.00      3000
+              weighted avg       1.00      1.00      1.00      3000
+

@@ -115,8 +115,8 @@ MERCHANT_CATEGORIES = [
 # Probabilitas transfer ANTAR bank/platform (True = antar, False = sesama)
 # Sumber: keputusan berdasarkan perilaku pengguna Indonesia
 INTERBANK_PROB = {
-    "e_wallet":       0.10,   # sesama 90%, antar 10%
-    "mobile_banking": 0.25,   # sesama 75%, antar 25%
+    "e_wallet":       0.20,   # sesama 80%, antar 20%
+    "mobile_banking": 0.40,   # sesama 60%, antar 40%
 }
 
 # ── Distribusi Jam (hour_of_day) ──────────────
@@ -227,9 +227,11 @@ def generate_user_pool(n: int) -> dict:
     for _ in tqdm(range(n), desc="  User pool"):
         user_id = generate_id("USR")
 
-        # Umur akun dalam hari — mayoritas akun sudah lama
-        # Distribusi: sebagian besar 30–1825 hari (1 bulan – 5 tahun)
-        account_age = int(np.random.exponential(scale=400))
+        # Umur akun — mixture: 15% new accounts (<30 hari), 85% established
+        if random.random() < 0.15:
+            account_age = random.randint(1, 30)
+        else:
+            account_age = int(np.random.exponential(scale=350)) + 30
         account_age = max(1, min(account_age, 1825))
 
         # Setiap user punya rata-rata transaksi historis sendiri
@@ -301,7 +303,11 @@ def generate_normal_transactions(users: dict, n: int) -> list:
         outside_hours    = not (sender["active_start"] <= hour <= sender["active_end"])
 
         # Rasio nominal ini vs rata-rata historis sender
+        # Occasionally normal users make large purchases (gifts, rent, electronics)
         avg              = sender["avg_trx_amount"] or 1
+        if random.random() < 0.08:
+            amount = min(avg * random.uniform(3, 10), 25_000_000)
+            amount = round(amount / 100) * 100
         amount_ratio     = round(amount / avg, 3)
 
         # Merchant category — hanya relevan untuk qris dan tagihan
@@ -318,6 +324,29 @@ def generate_normal_transactions(users: dict, n: int) -> list:
         else:
             receiver_type = "personal"
 
+        # Normal transactions occasionally exhibit "suspicious-looking" features
+        # to create realistic overlap with fraud distributions
+        trx_1h  = random.randint(0, 5) if random.random() < 0.9 else random.randint(5, 15)
+        trx_24h = random.randint(1, 15) if random.random() < 0.9 else random.randint(15, 35)
+
+        # Graph features — merchants and popular accounts get many senders
+        if receiver_type == "merchant_qris":
+            rcv_unique_senders = random.randint(3, 30)
+        elif random.random() < 0.85:
+            rcv_unique_senders = random.randint(1, 4)
+        else:
+            rcv_unique_senders = random.randint(4, 15)
+        snd_unique_receivers = random.randint(1, 3) if random.random() < 0.90 else random.randint(3, 8)
+
+        # Sequence features — some legitimate users have escalating patterns
+        # (rent, installments, business growth)
+        if random.random() < 0.85:
+            amount_trend = round(np.random.normal(1.0, 0.4), 3)
+        else:
+            amount_trend = round(np.random.normal(1.8, 0.8), 3)
+        amount_trend = max(0.2, min(amount_trend, 5.0))
+        avg_time_btwn = round(random.expovariate(1/35), 2)
+
         rows.append({
             # Grup A
             "transaction_id":             generate_id("TXN"),
@@ -328,30 +357,36 @@ def generate_normal_transactions(users: dict, n: int) -> list:
             "sender_province":            sender["province"],
             "sender_account_age_days":    sender["account_age_days"],
             "sender_device_fingerprint":  sender["device_id"],
-            "device_changed_recently":    False,
+            "device_changed_recently":    random.random() < 0.03,
             "sender_os":                  sender["os"],
             # Grup C
             "receiver_id":                receiver_id,
             "receiver_type":              receiver_type,
             "receiver_account_age_days":  receiver["account_age_days"],
             "receiver_province":          receiver["province"],
-            "receiver_id_match_blacklist": False,
+            "receiver_id_match_blacklist": random.random() < 0.005,
             # Grup D
             "transaction_type":           trx_type,
             "amount_idr":                 amount,
             "merchant_category":          merchant_cat,
-            "is_merchant_blacklisted":    False,
+            "is_merchant_blacklisted":    random.random() < 0.003,
             "interbank_transfer":         np.random.random() < INTERBANK_PROB[platform],
-            # Grup E
-            "trx_count_last_1h":          random.randint(0, 3),
-            "trx_count_last_24h":         random.randint(1, 15),
+            # Grup E — behavioral
+            "trx_count_last_1h":          trx_1h,
+            "trx_count_last_24h":         trx_24h,
             "amount_vs_avg_ratio":        amount_ratio,
             "hour_of_day":                hour,
             "is_outside_normal_hours":    outside_hours,
-            "time_since_last_trx_minutes": round(random.expovariate(1/60), 2),
-            "is_emulator":                False,
+            "time_since_last_trx_minutes": round(random.expovariate(1/45), 2),
+            "is_emulator":                random.random() < 0.005,
             "ip_country":                 weighted_choice(IP_COUNTRY_DIST),
             "amount_roundness":           compute_amount_roundness(amount),
+            # Grup E2 — graph features
+            "receiver_unique_senders_1h": rcv_unique_senders,
+            "sender_unique_receivers_1h": snd_unique_receivers,
+            # Grup E3 — sequence features
+            "amount_trend_3trx":          amount_trend,
+            "avg_time_between_trx_1h":    avg_time_btwn,
             # Grup F
             "is_fraud":                   False,
             "fraud_type":                 None,
@@ -385,90 +420,105 @@ def generate_fraud_transactions(users: dict, n: int) -> list:
         platform    = sender["platform"]
 
         # ── Defaults (akan di-override per fraud type) ──
-        receiver_account_age = random.randint(1, 7)
+        receiver_account_age = random.randint(1, 14)
         receiver_province    = sender["province"]
         receiver_type        = "personal"
         merchant_cat         = None
-        hour                 = random.randint(20, 23)
-        is_emulator          = False
+        hour                 = random.randint(18, 23) if random.random() < 0.6 else random.randint(0, 17)
+        is_emulator          = random.random() < 0.08
         is_blacklisted       = False
         receiver_blacklisted = False
-        interbank            = True
-        trx_1h               = random.randint(1, 5)
+        interbank            = random.random() < 0.75
+        trx_1h               = random.randint(1, 6)
         trx_24h              = random.randint(3, 20)
-        device_changed       = False
+        device_changed       = random.random() < 0.10
         ip_country           = "Indonesia"
         amount_roundness_override = None
 
         # ── Social Engineering ──────────────────────────
         if fraud_type == "social_engineering":
-            hour = random.randint(20, 23) if random.random() < 0.7 else random.randint(0, 1)
-            receiver_account_age = random.randint(1, 24)   # jam, tapi kita pakai hari → < 1
-            receiver_account_age = 1
-            interbank            = True
-            trx_1h               = random.randint(1, 3)
-            device_changed       = random.random() < 0.3   # 30% ganti device
+            hour = random.randint(18, 23) if random.random() < 0.55 else random.randint(0, 17)
+            # ~55% new accounts, ~30% semi-new, ~15% established
+            r = random.random()
+            if r < 0.55:
+                receiver_account_age = random.randint(1, 14)
+            elif r < 0.85:
+                receiver_account_age = random.randint(14, 90)
+            else:
+                receiver_account_age = random.randint(90, 365)
+            interbank            = random.random() < 0.70
+            trx_1h               = random.randint(1, 5)
+            trx_24h              = random.randint(2, 12)
+            device_changed       = random.random() < 0.25
             avg                  = sender["avg_trx_amount"] or 1
-            amount               = min(avg * random.uniform(5, 20), 25_000_000)
+            amount               = min(avg * random.uniform(1.5, 10), 25_000_000)
             amount               = round(amount / 100) * 100
-            amount_roundness_override = 0.0                # nominal ganjil
-            receiver_blacklisted = random.random() < 0.25  # 25% sudah dilaporkan
+            amount_roundness_override = compute_amount_roundness(amount) if random.random() < 0.3 else 0.0
+            receiver_blacklisted = random.random() < 0.20
 
         # ── Rekening Mule ───────────────────────────────
         elif fraud_type == "rekening_mule":
-            receiver_account_age = random.randint(1, 2)    # < 48 jam
-            interbank            = True
-            trx_1h               = random.randint(3, 10)   # pass-through burst
-            trx_24h              = random.randint(10, 40)
-            is_emulator          = random.random() < 0.4   # 40% pakai emulator
-            receiver_blacklisted = random.random() < 0.5   # 50% sudah dilaporkan
+            r = random.random()
+            if r < 0.50:
+                receiver_account_age = random.randint(1, 14)
+            elif r < 0.80:
+                receiver_account_age = random.randint(14, 60)
+            else:
+                receiver_account_age = random.randint(60, 180)
+            interbank            = random.random() < 0.75
+            trx_1h               = random.randint(3, 12)
+            trx_24h              = random.randint(8, 35)
+            is_emulator          = random.random() < 0.30
+            receiver_blacklisted = random.random() < 0.40
             avg                  = sender["avg_trx_amount"] or 1
-            amount               = min(avg * random.uniform(3, 15), 25_000_000)
+            amount               = min(avg * random.uniform(1.5, 8), 25_000_000)
             amount               = round(amount / 100) * 100
-            amount_roundness_override = 0.0
+            amount_roundness_override = compute_amount_roundness(amount) if random.random() < 0.25 else 0.0
 
         # ── QRIS Fraud Substitusi ───────────────────────
         elif fraud_type == "qris_fraud_substitusi":
             receiver_type        = "merchant_qris"
             merchant_cat         = random.choice(["F&B", "retail"])
-            receiver_province    = sender["province"]      # harus provinsi sama
-            trx_1h               = random.randint(30, 100) # burst banyak payer
-            trx_24h              = random.randint(50, 200)
+            receiver_province    = sender["province"]
+            # High volume but overlapping with busy legitimate merchants
+            trx_1h               = random.randint(8, 60)
+            trx_24h              = random.randint(20, 120)
             interbank            = random.random() < 0.3
-            receiver_account_age = random.randint(1, 30)
-            hour                 = random.randint(9, 21)   # jam toko buka
+            receiver_account_age = random.randint(1, 60)
+            hour                 = random.randint(8, 21)
             amount               = generate_amount("qris_payment")
-            receiver_blacklisted = random.random() < 0.3
+            receiver_blacklisted = random.random() < 0.25
 
         # ── QRIS Fraud Merchant Fiktif ──────────────────
         elif fraud_type == "qris_fraud_merchant_fiktif":
             receiver_type        = "merchant_qris"
             merchant_cat         = random.choice(["game_topup", "retail", "fashion"])
-            receiver_account_age = random.randint(1, 14)   # merchant baru
-            is_blacklisted       = random.random() < 0.4
-            receiver_blacklisted = random.random() < 0.4
+            receiver_account_age = random.randint(1, 60)
+            is_blacklisted       = random.random() < 0.35
+            receiver_blacklisted = random.random() < 0.35
             avg                  = sender["avg_trx_amount"] or 1
-            amount               = min(avg * random.uniform(4, 20), 25_000_000)
+            amount               = min(avg * random.uniform(1.5, 10), 25_000_000)
             amount               = round(amount / 100) * 100
-            trx_1h               = random.randint(1, 8)
+            trx_1h               = random.randint(1, 10)
+            trx_24h              = random.randint(3, 25)
             hour                 = random.randint(8, 22)
 
         # ── Pinjol Ilegal ───────────────────────────────
         elif fraud_type == "pinjol_ilegal":
             merchant_cat         = random.choice(["game_topup", "tagihan"])
             receiver_type        = "merchant_online"
-            is_blacklisted       = True                    # selalu blacklisted
-            receiver_blacklisted = True
-            trx_1h               = random.randint(3, 12)   # top-up berulang
-            trx_24h              = random.randint(10, 30)
-            hour                 = random.randint(0, 4) if random.random() < 0.4 else random.randint(20, 23)
+            is_blacklisted       = random.random() < 0.70
+            receiver_blacklisted = random.random() < 0.60
+            trx_1h               = random.randint(2, 10)
+            trx_24h              = random.randint(5, 25)
+            hour                 = random.randint(0, 4) if random.random() < 0.35 else random.randint(18, 23)
             amount               = random.choice([
-                random.randint(50_000, 200_000),           # cicilan kecil
-                random.randint(200_000, 500_000),
+                random.randint(50_000, 300_000),
+                random.randint(300_000, 800_000),
             ])
             amount               = round(amount / 100) * 100
-            receiver_account_age = random.randint(30, 365) # platform sudah lama
-            interbank            = random.random() < 0.6
+            receiver_account_age = random.randint(14, 365)
+            interbank            = random.random() < 0.55
 
         else:
             amount = generate_amount("transfer")
@@ -489,6 +539,31 @@ def generate_fraud_transactions(users: dict, n: int) -> list:
         fraud_avg   = FRAUD_AMOUNT_AVG[fraud_type]
         fraud_loss  = round(amount * random.uniform(0.8, 1.2) / 100) * 100
         fraud_loss  = min(fraud_loss, fraud_avg * 2)
+
+        # Graph features per fraud type — elevated but overlapping with normal
+        if fraud_type == "rekening_mule":
+            rcv_unique_senders = random.randint(4, 20)
+            snd_unique_receivers = random.randint(1, 5)
+        elif fraud_type == "qris_fraud_substitusi":
+            rcv_unique_senders = random.randint(8, 40)
+            snd_unique_receivers = random.randint(1, 2)
+        elif fraud_type == "social_engineering":
+            rcv_unique_senders = random.randint(1, 8)
+            snd_unique_receivers = random.randint(1, 3)
+        elif fraud_type == "pinjol_ilegal":
+            rcv_unique_senders = random.randint(3, 12)
+            snd_unique_receivers = random.randint(1, 3)
+        else:
+            rcv_unique_senders = random.randint(2, 10)
+            snd_unique_receivers = random.randint(1, 3)
+
+        # Sequence features — fraud tends toward escalation but with overlap
+        if fraud_type in ("social_engineering", "rekening_mule"):
+            amount_trend = round(np.random.normal(2.5, 1.0), 3)
+        else:
+            amount_trend = round(np.random.normal(1.5, 0.7), 3)
+        amount_trend = max(0.3, min(amount_trend, 5.0))
+        avg_time_btwn = round(random.expovariate(1/12), 2)
 
         rows.append({
             # Grup A
@@ -514,16 +589,22 @@ def generate_fraud_transactions(users: dict, n: int) -> list:
             "merchant_category":          merchant_cat,
             "is_merchant_blacklisted":    is_blacklisted,
             "interbank_transfer":         interbank,
-            # Grup E
+            # Grup E — behavioral
             "trx_count_last_1h":          trx_1h,
             "trx_count_last_24h":         trx_24h,
             "amount_vs_avg_ratio":        amount_ratio,
             "hour_of_day":                hour,
             "is_outside_normal_hours":    outside_hours,
-            "time_since_last_trx_minutes": round(random.expovariate(1/5), 2),
+            "time_since_last_trx_minutes": round(random.expovariate(1/15), 2),
             "is_emulator":                is_emulator,
             "ip_country":                 ip_country,
             "amount_roundness":           roundness,
+            # Grup E2 — graph features
+            "receiver_unique_senders_1h": rcv_unique_senders,
+            "sender_unique_receivers_1h": snd_unique_receivers,
+            # Grup E3 — sequence features
+            "amount_trend_3trx":          amount_trend,
+            "avg_time_between_trx_1h":    avg_time_btwn,
             # Grup F
             "is_fraud":                   True,
             "fraud_type":                 fraud_type,
@@ -559,6 +640,8 @@ def build_and_export(normal_rows: list, fraud_rows: list, output_path: str):
         "trx_count_last_1h", "trx_count_last_24h", "amount_vs_avg_ratio",
         "hour_of_day", "is_outside_normal_hours", "time_since_last_trx_minutes",
         "is_emulator", "ip_country", "amount_roundness",
+        "receiver_unique_senders_1h", "sender_unique_receivers_1h",
+        "amount_trend_3trx", "avg_time_between_trx_1h",
         "is_fraud", "fraud_type", "fraud_amount_idr",
     ]
     df = df[column_order]

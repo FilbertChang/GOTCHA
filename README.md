@@ -1,15 +1,14 @@
-# G.O.T.C.H.A
-### Guard & Observe Transactions with Cognitive Hybrid AI
+# GOTCHA
 
-> A real-time AI-powered fraud detection system for digital financial transactions, calibrated specifically for Indonesian digital financial crime patterns.
+> Fraud detection system for Indonesia's digital financial ecosystem, calibrated from OJK and Bank Indonesia statistics.
 
 ---
 
-## 🎯 About the Project
+## About the Project
 
-GOTCHA is a fraud detection intelligence platform designed for Indonesia's digital financial ecosystem. It combines a **Random Forest Classifier**, **Isolation Forest**, and **GPT-4o** to detect and explain suspicious transactions in real-time.
+GOTCHA detects 5 common fraud types in Indonesia's digital financial ecosystem using **supervised classification** (calibrated Random Forest + SMOTE), **unsupervised anomaly detection** (Isolation Forest), and **LLM-based risk analysis** (GPT-4o) that provides an independent assessment of model output.
 
-Built for the **Microsoft Elevate AI Impact Challenge** — Fraud Detection & Risk Management theme.
+Built for the **Microsoft Elevate AI Impact Challenge 2026** — Fraud Detection & Risk Management theme.
 
 ---
 
@@ -32,11 +31,12 @@ Frontend (React + Vite)
         ↓
 Backend (FastAPI)
         ↓
-┌───────────────────────────────┐
-│  Random Forest Classifier     │  ← Main model (supervised)
-│  Isolation Forest             │  ← Anomaly layer (unsupervised)
-│  GPT-4o (GitHub Models)       │  ← Explainability engine
-└───────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  Random Forest (Calibrated + SMOTE)     │  ← Binary fraud scoring (supervised)
+│  Random Forest (Multi-class)            │  ← Fraud type classification
+│  Isolation Forest (numeric features)    │  ← Anomaly detection (unsupervised)
+│  GPT-4o (GitHub Models)                 │  ← Independent risk analysis
+└─────────────────────────────────────────┘
         ↓
 Azure Services
 ├── Azure OpenAI
@@ -65,11 +65,19 @@ The dataset was generated using `generate_dataset.py` and contains no personal d
 
 ## 🤖 AI Models
 
-| Model | Type | ROC-AUC | Function |
+| Model | Type | Metric | Function |
 |---|---|---|---|
-| Random Forest | Supervised | 1.0000 | Fraud scoring & classification |
-| Isolation Forest | Unsupervised | 0.5515 | Anomaly detection layer |
-| GPT-4o | LLM | — | Explainability in Bahasa Indonesia |
+| Random Forest (Calibrated) | Supervised | ROC-AUC 0.9989 | Binary fraud scoring |
+| Random Forest | Multi-class | Accuracy 0.99 | Fraud type classification |
+| Isolation Forest | Unsupervised | ROC-AUC 0.7100 | Anomaly detection layer |
+| GPT-4o | LLM | — | Independent risk analysis |
+
+**ML techniques used:**
+- **SMOTE oversampling** to handle class imbalance (1.5% fraud rate)
+- **Isotonic calibration** for accurate probability output (calibration error: 0.016)
+- **Cost-sensitive threshold** — threshold optimized with cost ratio FN:FP = 10:1
+- **Graph features** — `receiver_unique_senders_1h`, `sender_unique_receivers_1h` for mule network detection
+- **Sequence features** — `amount_trend_3trx`, `avg_time_between_trx_1h` for escalation detection
 
 ---
 
@@ -109,10 +117,10 @@ cd GOTCHA
 
 ### 2. Set up the backend
 ```bash
-pip install fastapi uvicorn scikit-learn pandas numpy python-dotenv openai tqdm
+pip install fastapi uvicorn scikit-learn pandas numpy python-dotenv openai tqdm imbalanced-learn
 ```
 
-Create a `.env` file in the root folder:
+Create a `.env` file in the root folder (see `.env.example`):
 ```
 GITHUB_TOKEN=your_github_pat_token
 GITHUB_MODEL=gpt-4o
@@ -150,6 +158,7 @@ Frontend runs at `http://localhost:5173`
 | `GET` | `/health` | Check server status |
 | `GET` | `/stats` | Model statistics |
 | `POST` | `/predict` | Analyze a transaction |
+| `GET` | `/monitor` | Prediction monitoring & drift stats |
 
 ### Example `/predict` request:
 ```json
@@ -172,12 +181,23 @@ Frontend runs at `http://localhost:5173`
 ```json
 {
   "transaction_id": "TXN-001",
-  "risk_score": 1.0,
+  "risk_score": 0.94,
   "is_fraud": true,
   "fraud_type_predicted": "social_engineering",
   "anomaly_flag": false,
-  "explanation": "This transaction is flagged as social engineering...",
-  "recommended_action": "BLOCK",
+  "analysis": {
+    "explanation": "Large transfer (12.5x average) to a new account (1 day old) at 22:00 forms a classic social engineering pattern...",
+    "risk_factors": [
+      "Recipient account created only 1 day ago",
+      "Amount is 12.5x the sender's average"
+    ],
+    "investigation_steps": [
+      "Check if the recipient account received transfers from other senders in the last 24 hours",
+      "Contact sender to verify — ask if someone reached out via WhatsApp/Telegram"
+    ],
+    "recommended_action": "BLOCK",
+    "confidence_note": "High confidence — 4 signals active simultaneously is rare in legitimate transactions."
+  },
   "signals": { "receiver_account_age_days_low": true, "...": "..." }
 }
 ```
@@ -191,11 +211,17 @@ GOTCHA/
 ├── main.py                  # FastAPI backend
 ├── train_model.py           # Model training script
 ├── generate_dataset.py      # Dataset generation script
-├── models/
-│   ├── random_forest.pkl
+├── .env.example             # Environment variable template
+├── tests/
+│   └── test_api.py          # API endpoint tests
+├── models/                      # Generated by train_model.py (.gitignored)
+│   ├── random_forest.pkl        # Calibrated RF (binary fraud scoring)
+│   ├── fraud_type_classifier.pkl # RF (multi-class fraud type)
 │   ├── isolation_forest.pkl
 │   ├── encoders.pkl
 │   ├── feature_columns.pkl
+│   ├── iso_feature_cols.pkl
+│   ├── optimal_threshold.pkl
 │   └── model_report.txt
 └── frontend/
     ├── src/
@@ -217,4 +243,4 @@ Microsoft Elevate AI Impact Challenge 2026
 
 ## 📄 Dataset License
 
-The GOTCHA-ID dataset was created by the developer based on publicly available aggregate statistics from OJK and Bank Indonesia. It contains no personal data or copyrighted data.
+The GOTCHA-ID dataset was created by the participant based on aggregate public statistics from OJK and Bank Indonesia. It contains no personal data or copyrighted material.

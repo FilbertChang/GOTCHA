@@ -35,11 +35,11 @@ const FRAUD_TYPES = [
 const FRAUD_LABEL_MAP = Object.fromEntries(FRAUD_TYPES.map(f => [f.key, f.label]));
 
 const SCENARIOS = [
-  { label: "Social Engineering", fraud_key: "social_engineering", data: { transaction_id: "TXN-SE-001", platform_type: "e_wallet", transaction_type: "transfer", amount_idr: 24500000, interbank_transfer: true, merchant_category: null, is_merchant_blacklisted: false, sender_account_age_days: 365, device_changed_recently: true, sender_os: "Android", sender_province: "Jawa Barat", receiver_type: "personal", receiver_account_age_days: 1, receiver_id_match_blacklist: false, trx_count_last_1h: 2, trx_count_last_24h: 3, amount_vs_avg_ratio: 12.5, hour_of_day: 22, is_outside_normal_hours: true, time_since_last_trx_minutes: 3.2, is_emulator: false, amount_roundness: 0.0 } },
-  { label: "Rekening Mule", fraud_key: "rekening_mule", data: { transaction_id: "TXN-RM-001", platform_type: "mobile_banking", transaction_type: "transfer", amount_idr: 18000000, interbank_transfer: true, merchant_category: null, is_merchant_blacklisted: false, sender_account_age_days: 200, device_changed_recently: false, sender_os: "Android", sender_province: "DKI Jakarta", receiver_type: "personal", receiver_account_age_days: 2, receiver_id_match_blacklist: true, trx_count_last_1h: 8, trx_count_last_24h: 25, amount_vs_avg_ratio: 9.3, hour_of_day: 14, is_outside_normal_hours: false, time_since_last_trx_minutes: 1.5, is_emulator: true, amount_roundness: 0.0 } },
-  { label: "QRIS Fraud", fraud_key: "qris_fraud_substitusi", data: { transaction_id: "TXN-QR-001", platform_type: "e_wallet", transaction_type: "qris_payment", amount_idr: 150000, interbank_transfer: false, merchant_category: "F&B", is_merchant_blacklisted: false, sender_account_age_days: 500, device_changed_recently: false, sender_os: "iOS", sender_province: "Jawa Timur", receiver_type: "merchant_qris", receiver_account_age_days: 3, receiver_id_match_blacklist: true, trx_count_last_1h: 85, trx_count_last_24h: 150, amount_vs_avg_ratio: 1.2, hour_of_day: 11, is_outside_normal_hours: false, time_since_last_trx_minutes: 0.8, is_emulator: false, amount_roundness: 0.5 } },
-  { label: "Pinjol Ilegal", fraud_key: "pinjol_ilegal", data: { transaction_id: "TXN-PJ-001", platform_type: "e_wallet", transaction_type: "pembayaran_tagihan", amount_idr: 150000, interbank_transfer: true, merchant_category: "game_topup", is_merchant_blacklisted: true, sender_account_age_days: 180, device_changed_recently: false, sender_os: "Android", sender_province: "Jawa Timur", receiver_type: "merchant_online", receiver_account_age_days: 90, receiver_id_match_blacklist: true, trx_count_last_1h: 8, trx_count_last_24h: 22, amount_vs_avg_ratio: 1.1, hour_of_day: 2, is_outside_normal_hours: true, time_since_last_trx_minutes: 4.5, is_emulator: false, amount_roundness: 0.5 } },
-  { label: "Transaksi Normal", fraud_key: null, data: { transaction_id: "TXN-OK-001", platform_type: "e_wallet", transaction_type: "qris_payment", amount_idr: 45000, interbank_transfer: false, merchant_category: "F&B", is_merchant_blacklisted: false, sender_account_age_days: 720, device_changed_recently: false, sender_os: "Android", sender_province: "Jawa Barat", receiver_type: "merchant_qris", receiver_account_age_days: 365, receiver_id_match_blacklist: false, trx_count_last_1h: 1, trx_count_last_24h: 4, amount_vs_avg_ratio: 0.9, hour_of_day: 12, is_outside_normal_hours: false, time_since_last_trx_minutes: 45.0, is_emulator: false, amount_roundness: 0.75 } },
+  { label: "Social Engineering", fraud_key: "social_engineering", data: { transaction_id: "TXN-SE-001", platform_type: "e_wallet", transaction_type: "transfer", amount_idr: 24500000, interbank_transfer: true, merchant_category: null, is_merchant_blacklisted: false, sender_account_age_days: 365, device_changed_recently: true, sender_os: "Android", sender_province: "Jawa Barat", receiver_type: "personal", receiver_account_age_days: 1, receiver_id_match_blacklist: false, trx_count_last_1h: 2, trx_count_last_24h: 3, amount_vs_avg_ratio: 12.5, hour_of_day: 22, is_outside_normal_hours: true, time_since_last_trx_minutes: 3.2, is_emulator: false, amount_roundness: 0.0, receiver_unique_senders_1h: 4, sender_unique_receivers_1h: 1, amount_trend_3trx: 3.5, avg_time_between_trx_1h: 5.0 } },
+  { label: "Rekening Mule", fraud_key: "rekening_mule", data: { transaction_id: "TXN-RM-001", platform_type: "mobile_banking", transaction_type: "transfer", amount_idr: 18000000, interbank_transfer: true, merchant_category: null, is_merchant_blacklisted: false, sender_account_age_days: 200, device_changed_recently: false, sender_os: "Android", sender_province: "DKI Jakarta", receiver_type: "personal", receiver_account_age_days: 2, receiver_id_match_blacklist: true, trx_count_last_1h: 8, trx_count_last_24h: 25, amount_vs_avg_ratio: 9.3, hour_of_day: 14, is_outside_normal_hours: false, time_since_last_trx_minutes: 1.5, is_emulator: true, amount_roundness: 0.0, receiver_unique_senders_1h: 12, sender_unique_receivers_1h: 1, amount_trend_3trx: 2.8, avg_time_between_trx_1h: 3.0 } },
+  { label: "QRIS Fraud", fraud_key: "qris_fraud_substitusi", data: { transaction_id: "TXN-QR-001", platform_type: "e_wallet", transaction_type: "qris_payment", amount_idr: 150000, interbank_transfer: false, merchant_category: "F&B", is_merchant_blacklisted: false, sender_account_age_days: 500, device_changed_recently: false, sender_os: "iOS", sender_province: "Jawa Timur", receiver_type: "merchant_qris", receiver_account_age_days: 3, receiver_id_match_blacklist: true, trx_count_last_1h: 85, trx_count_last_24h: 150, amount_vs_avg_ratio: 1.2, hour_of_day: 11, is_outside_normal_hours: false, time_since_last_trx_minutes: 0.8, is_emulator: false, amount_roundness: 0.5, receiver_unique_senders_1h: 35, sender_unique_receivers_1h: 1, amount_trend_3trx: 1.0, avg_time_between_trx_1h: 0.5 } },
+  { label: "Pinjol Ilegal", fraud_key: "pinjol_ilegal", data: { transaction_id: "TXN-PJ-001", platform_type: "e_wallet", transaction_type: "pembayaran_tagihan", amount_idr: 150000, interbank_transfer: true, merchant_category: "game_topup", is_merchant_blacklisted: true, sender_account_age_days: 180, device_changed_recently: false, sender_os: "Android", sender_province: "Jawa Timur", receiver_type: "merchant_online", receiver_account_age_days: 90, receiver_id_match_blacklist: true, trx_count_last_1h: 8, trx_count_last_24h: 22, amount_vs_avg_ratio: 1.1, hour_of_day: 2, is_outside_normal_hours: true, time_since_last_trx_minutes: 4.5, is_emulator: false, amount_roundness: 0.5, receiver_unique_senders_1h: 8, sender_unique_receivers_1h: 2, amount_trend_3trx: 1.2, avg_time_between_trx_1h: 6.0 } },
+  { label: "Transaksi Normal", fraud_key: null, data: { transaction_id: "TXN-OK-001", platform_type: "e_wallet", transaction_type: "qris_payment", amount_idr: 45000, interbank_transfer: false, merchant_category: "F&B", is_merchant_blacklisted: false, sender_account_age_days: 720, device_changed_recently: false, sender_os: "Android", sender_province: "Jawa Barat", receiver_type: "merchant_qris", receiver_account_age_days: 365, receiver_id_match_blacklist: false, trx_count_last_1h: 1, trx_count_last_24h: 4, amount_vs_avg_ratio: 0.9, hour_of_day: 12, is_outside_normal_hours: false, time_since_last_trx_minutes: 45.0, is_emulator: false, amount_roundness: 0.75, receiver_unique_senders_1h: 1, sender_unique_receivers_1h: 1, amount_trend_3trx: 1.0, avg_time_between_trx_1h: 35.0 } },
 ];
 
 function RiskMeter({ score, T }) {
@@ -180,8 +180,8 @@ export default function App() {
   }
 
   const actionColor = result
-    ? result.recommended_action === "BLOCK" ? T.danger
-      : result.recommended_action === "REVIEW" ? T.warn : T.safe
+    ? (result.analysis?.recommended_action || "") === "BLOCK" ? T.danger
+      : (result.analysis?.recommended_action || "") === "REVIEW" ? T.warn : T.safe
     : T.muted;
 
   const navBtn = (tab) => (
@@ -295,7 +295,7 @@ export default function App() {
                       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
                         <span style={{ fontSize: 14, color: T.muted }}>{h.timestamp}</span>
                         <span style={{ fontSize: 16, fontWeight: 600, color: h.is_fraud ? T.danger : T.safe, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.16px" }}>{Math.round(h.risk_score * 100)}%</span>
-                        <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, fontWeight: 600, letterSpacing: "0.24px", background: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.recommended_action}</span>
+                        <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, fontWeight: 600, letterSpacing: "0.24px", background: h.analysis?.recommended_action === "BLOCK" ? T.danger : h.analysis?.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.analysis?.recommended_action}</span>
                       </div>
                     </div>
                   ))}
@@ -355,7 +355,7 @@ export default function App() {
                   <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
                     <RiskMeter score={result.risk_score} T={T} />
                     <div>
-                      <div style={{ fontSize: 48, fontWeight: 500, color: actionColor, letterSpacing: "-0.48px", lineHeight: 1, fontFamily: '"Aeonik Pro", sans-serif' }}>{result.recommended_action}</div>
+                      <div style={{ fontSize: 48, fontWeight: 500, color: actionColor, letterSpacing: "-0.48px", lineHeight: 1, fontFamily: '"Aeonik Pro", sans-serif' }}>{result.analysis?.recommended_action}</div>
                       <div style={{ fontSize: 16, color: T.muted, marginTop: 8, marginBottom: 16, fontWeight: 500 }}>{result.transaction_id}</div>
                       {result.fraud_type_predicted && (
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, padding: "8px 16px", borderRadius: 9999, background: T.danger, color: "#fff", fontWeight: 600, letterSpacing: "0.16px" }}>
@@ -371,8 +371,37 @@ export default function App() {
                   </div>
                   <div style={{ height: 1, background: T.border }} />
                   <div style={{ background: T.surface, borderRadius: 16, padding: 24, border: `1px solid ${T.border}` }}>
-                    <div style={{ fontSize: 12, color: T.text, letterSpacing: "0.24px", fontWeight: 600, marginBottom: 12, textTransform: "uppercase" }}>AI Explanation — GPT-4o</div>
-                    <div style={{ fontSize: 16, color: T.text, lineHeight: 1.6, fontWeight: 400 }}>{result.explanation}</div>
+                    <div style={{ fontSize: 12, color: T.text, letterSpacing: "0.24px", fontWeight: 600, marginBottom: 12, textTransform: "uppercase" }}>AI Analysis — GPT-4o</div>
+                    <div style={{ fontSize: 16, color: T.text, lineHeight: 1.6, fontWeight: 400, marginBottom: 20 }}>{result.analysis?.explanation}</div>
+                    {result.analysis?.risk_factors?.length > 0 && (
+                      <div style={{ marginBottom: 20 }}>
+                        <div style={{ fontSize: 11, color: T.muted, letterSpacing: "0.24px", fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Faktor Risiko</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {result.analysis.risk_factors.map((f, i) => (
+                            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: T.text, lineHeight: 1.5 }}>
+                              <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.danger, flexShrink: 0, marginTop: 7 }} />
+                              {f}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {result.analysis?.investigation_steps?.length > 0 && (
+                      <div style={{ marginBottom: 20 }}>
+                        <div style={{ fontSize: 11, color: T.muted, letterSpacing: "0.24px", fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Langkah Investigasi</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {result.analysis.investigation_steps.map((s, i) => (
+                            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: T.text, lineHeight: 1.5 }}>
+                              <span style={{ color: T.accent, fontWeight: 600, flexShrink: 0 }}>{i + 1}.</span>
+                              {s}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {result.analysis?.confidence_note && (
+                      <div style={{ fontSize: 13, color: T.muted, fontStyle: "italic", lineHeight: 1.5, borderTop: `1px solid ${T.border}`, paddingTop: 12 }}>{result.analysis.confidence_note}</div>
+                    )}
                   </div>
                   <div>
                     <div style={{ fontSize: 12, color: T.muted, letterSpacing: "0.24px", fontWeight: 500, marginBottom: 16, textTransform: "uppercase" }}>Sinyal Terdeteksi</div>
@@ -411,7 +440,7 @@ export default function App() {
                     <span style={{ fontSize: 14, color: T.muted }}>{h.timestamp}</span>
                     <span style={{ fontSize: 14, color: h.is_fraud ? T.danger : T.safe, fontWeight: 500 }}>{h.fraud_type_predicted ? (FRAUD_LABEL_MAP[h.fraud_type_predicted] || h.fraud_type_predicted) : "Normal"}</span>
                     <span style={{ fontSize: 16, fontWeight: 500, color: h.is_fraud ? T.danger : T.safe, fontFamily: '"Aeonik Pro", sans-serif', letterSpacing: "-0.16px" }}>{Math.round(h.risk_score * 100)}%</span>
-                    <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, textAlign: "center", fontWeight: 600, letterSpacing: "0.24px", background: h.recommended_action === "BLOCK" ? T.danger : h.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.recommended_action}</span>
+                    <span style={{ fontSize: 12, padding: "6px 16px", borderRadius: 9999, textAlign: "center", fontWeight: 600, letterSpacing: "0.24px", background: h.analysis?.recommended_action === "BLOCK" ? T.danger : h.analysis?.recommended_action === "REVIEW" ? T.warn : T.safe, color: "#fff" }}>{h.analysis?.recommended_action}</span>
                   </div>
                 ))}
               </div>
