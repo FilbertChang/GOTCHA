@@ -1,3 +1,6 @@
+<img width="1919" height="916" alt="Screenshot 2026-05-25 192920" src="https://github.com/user-attachments/assets/73721d4b-a6a8-4bec-a53b-312248240851" />
+<img width="1919" height="921" alt="Screenshot 2026-05-25 192835" src="https://github.com/user-attachments/assets/c05ed409-d320-42ad-979f-657d11b387b4" />
+<img width="1919" height="914" alt="Screenshot 2026-05-25 192904" src="https://github.com/user-attachments/assets/477e5528-7f2b-4fbc-b7db-f5adc0cd688e" />
 # GOTCHA
 
 > Fraud detection system for Indonesia's digital financial ecosystem, calibrated from OJK and Bank Indonesia statistics.
